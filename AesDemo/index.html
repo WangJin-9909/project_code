@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>AES测试网页</title>
+    <script src="js/aes.js"></script>
+    <script src="js/sm4.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/crypto_api.js"></script>
+    <script src="js/sha1.js"></script>
+
+
+    <script>
+
+    </script>
+    <script>
+        /* //说明：
+         //  1.如果加密解密涉及到前端和后端，则这里的key要保持和后端的key一致
+         //  2.AES的算法模式有好几种（ECB,CBC,CFB,OFB），所以也要和后端保持一致
+         //  3.AES的补码方式有两种（PKS5，PKS7），所以也要和后端保持一致
+         //  4.AES的密钥长度有三种（128,192,256，默认是128），所以也要和后端保持一致
+         //  5.AES的加密结果编码方式有两种（base64和十六进制），具体怎么选择由自己定，但是加密和解密的编码方式要统一
+         var key = CryptoJS.enc.Utf8.parse("6D6EEA0E029A3C3A");
+
+
+         /!*加密*!/
+         function aesEncode(enStr) {
+             var encryptedData = CryptoJS.AES.encrypt(enStr, key, {
+                 mode: CryptoJS.mode.CBC,
+                 padding: CryptoJS.pad.Pkcs7
+             });
+             return encryptedData.toString();
+         }
+
+         /!*解密*!/
+         function aesDecode(encryptedStr) {
+             var encryptedHexStr = CryptoJS.enc.Base64.parse(encryptedStr);
+             var encryptedBase64Str = CryptoJS.enc.Base64.stringify(encryptedHexStr);
+             var decryptedData = CryptoJS.AES.decrypt(encryptedBase64Str, key, {
+                 mode: CryptoJS.mode.CBC,
+                 padding: CryptoJS.pad.Pkcs7
+             });
+             return decryptedData.toString(CryptoJS.enc.Utf8);
+         }
+
+         //解密方法
+         function aesDecryptCBC(word) {
+             var encryptedHexStr = CryptoJS.enc.Hex.parse(word);
+             var srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
+             var decrypt = CryptoJS.AES.decrypt(srcs, key, {
+                 iv: iv,
+                 mode: CryptoJS.mode.CBC,
+                 padding: CryptoJS.pad.Pkcs7
+             });
+             var decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
+             return decryptedStr.toString();
+         }
+
+         //加密方法
+         function aesEncryptCBC(word) {
+             var srcs = CryptoJS.enc.Utf8.parse(word);
+             var encrypted = CryptoJS.AES.encrypt(srcs, key, {
+                 iv: iv,
+                 mode: CryptoJS.mode.CBC,
+                 padding: CryptoJS.pad.Pkcs7
+             });
+             //return encrypted.ciphertext.toString().toUpperCase();
+             return encrypted.toString();
+         }*/
+
+
+        //-----------------------------------------------------------
+        function DES3encrypt(key, str) {
+            var des3en = "";
+            // var base64en = "";
+            try {
+                des3en = DES3.encrypt(key, str);
+            } catch (error) {
+                console.error('加密时出现异常，详细信息如下：');
+                console.log(error);
+                return "";
+            }
+            // try {
+            // 	base64en = BASE64.encoder(des3en);
+            // } catch (error) {
+            // 	console.error('Base64转换时出现异常，详细信息如下：');
+            // 	console.log(error);
+            // }
+            return des3en;
+        };
+
+        function DES3decrypt(key, str) {
+            var des3en = "";
+            // var base64en = "";
+            // try {
+            // 	base64en = BASE64.decoder(str)
+            // } catch (error) {
+            // 	console.error('Base64转换时出现异常，详细信息如下：');
+            // 	console.log(error);
+            // 	return "";
+            // }
+            try {
+                des3en = DES3.decrypt(key, str);
+            } catch (error) {
+                console.error('解密时出现异常，详细信息如下：');
+                console.log(error);
+            }
+            return des3en;
+        };
+
+        function createKey() {
+            var key = "1234567890abcdef12345678";
+            return key;
+        };
+
+        function getSm4Key(keys) {
+            if(keys.length < 1 || keys.length > 2){
+                return "";
+            }
+            var str = "";
+            for (var i = 0; i < keys.length; i++) {
+                str += keys[i];
+            }
+            var i = SHA1(str);
+            console.log("sm4_key = " + i.substring(0, 16));
+            return i.substring(0, 16).toLowerCase();
+        }
+
+        $(function () {
+            var enStr = "";
+            var deStr = "";
+
+            $("#btn_sm4_key_gen").click(function () {
+                console.log("------------SM4 密钥----------");
+                var str = "";
+                var keys = ["123456", "aaaaaa"];
+                var i = getSm4Key(keys);
+
+                console.log("sha1 = " + i);
+
+
+            });
+
+
+            $("#btn_aes_ecb_en").click(function () {
+                console.log("------------aes_ecb加密----------");
+                //aes加密
+                //enStr = aesEncode("123");
+                enStr = crypto_api.aes_encrypt_ecb("encrypt_aes_ecb", "6D6EEA0E029A3C3A");
+                console.log("加密结果为：" + enStr);
+            });
+            $("#btn_aes_ecb_de").click(function () {
+                console.log("------------aes_ecb解密----------");
+                //aes解密
+                //deStr = aesDecode("rF53Fk7ZSA6WE0yMT7a+iQ==");
+                deStr = crypto_api.aes_decrypt_ecb("QMTNWzGR2e4ShG3rUjslBlYMN0wEVw5IQow0iO4G5XXpDeTFdxDZyALoCPGeDMik", "6D6EEA0E029A3C3A");
+                console.log("解密结果为：" + deStr);
+            });
+            $("#btn_aes_cbc_de").click(function () {
+                console.log("------------aes_cbc解密----------");
+                //aes解密
+                //deStr = aesDecryptCBC("rF53Fk7ZSA6WE0yMT7a+iQ==");
+                deStr = crypto_api.aes_decrypt_cbc("K3vbsTC2gzTooxM/CJDhcg==", "6D6EEA0E029A3C3A");
+                console.log("解密结果为：" + deStr);
+
+            });
+
+            $("#btn_aes_cbc_en").click(function () {
+                console.log("------------aes_cbc加密----------");
+                //aes加密
+                //enStr = aesEncryptCBC("123");
+                enStr = crypto_api.aes_encrypt_cbc("encrypt_aes_cbc9999999", "6D6EEA0E029A3C3A");
+                console.log("加密结果为：" + enStr);
+
+
+            });
+
+            $("#btn_sm4_ecb_en").click(function () {
+                console.log("------------sm4_ecb加密----------");
+                //aes加密
+                //enStr = SM4.encode({input: "123", key: '1234567890abcdef'});
+                enStr = crypto_api.sm4_encrypt_ecb("sm4_ecb_encrypt", "1234567890abcdef");
+                console.log("加密结果为：" + enStr);
+
+
+            });
+            $("#btn_sm4_ecb_de").click(function () {
+                console.log("------------sm4_ecb解密----------");
+                //aes加密
+                //deStr = SM4.decode({input: "", key: '1234567890abcdef'});
+                deStr = crypto_api.sm4_decrypt_ecb("NHMW397sLlKOB3KB6Gp7bKjsgSfsUC/Hi10+E8xH/qt9YNHsMUwsTfopZMvCLZOyMoHfxiAN//6JReiE/KohGkfwnvxY/OiI2C+mqiyntRepDuaqm3eFkQ5vpyg6qiCuldQ1EdWvBGF5CEagbamLBnxCHnXztOLO4vDybY6YR0NsJl4CVJL5hP+yOm8blWD1lErZ27xq/X//tmB053s/oHabrPnilTfUmJoj7hL/vS8nhKOmo0DGI7sXPCm+D8KOeCbJecd87O58PiB9573rJudPJTf67NBZD9wNrAPaT67RwNDFtfIBliGc7HDkbAYCW72Y/gfTU2S4rrCy/W9GGg==", "1234567890abcdef");
+                console.log("解密结果为：" + deStr);
+
+
+            });
+
+
+            $("#btn_des3_en").click(function () {
+                console.log("------------3DES解密----------");
+                var enStr = "";
+                var deStr = DES3decrypt(createKey(), enStr);
+                console.log("deStr = " + deStr);
+
+
+            });
+            $("#btn_des3_en").click(function () {
+                console.log("------------3DES加密----------");
+                var str = "";
+                var enStr = DES3encrypt(createKey(), str);
+                console.log("enStr = " + enStr);
+
+
+            });
+
+
+        });
+    </script>
+
+
+</head>
+<body>
+<h3>这里的密钥都是由16个字符组成的字符串，具体长度未测试</h3>
+<button id="btn_aes_ecb_en">aes加密</button>
+<button id="btn_aes_ecb_de">aes解密</button>
+<button id="btn_aes_cbc_en">aes_cbc加密</button>
+<button id="btn_aes_cbc_de">aes_cbc解密</button>
+<button id="btn_des3_de">3DES解密</button>
+<button id="btn_des3_en">3DES加密</button>
+<button id="btn_sm4_ecb_en">sm4加密</button>
+<button id="btn_sm4_ecb_de">sm4解密</button>
+<button id="btn_sm4_key_gen">sm4密钥</button>
+
+</body>
+</html>

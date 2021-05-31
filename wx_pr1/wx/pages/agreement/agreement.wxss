@@ -1,8 +1,0 @@
-.container {
-    padding: 10rpx;
-    color: #999;
-}
-
-.container view {
-    font-size: 28rpx;
-}
